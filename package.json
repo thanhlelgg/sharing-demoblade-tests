@@ -1,0 +1,33 @@
+{
+  "name": "demoblaze-ui-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "test:cross-browser": "playwright test --project=chromium --project=firefox --project=webkit --project=mobile-chromium --project=mobile-webkit --grep-invert @known-bug",
+    "test:mobile": "playwright test --project=mobile-chromium --project=mobile-webkit",
+    "test:api": "playwright test --project=api",
+    "test:performance": "playwright test --project=performance",
+    "test:regression": "playwright test --grep @regression --grep-invert @known-bug",
+    "test:known-bugs": "playwright test --grep @known-bug",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "install:browsers": "playwright install chromium firefox webkit"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "@types/node": "^22.10.0",
+    "playwright": "^1.50.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
