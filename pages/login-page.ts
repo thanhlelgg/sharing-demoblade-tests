@@ -1,47 +1,57 @@
-import { LoginPageLocators } from '../locators/login-page-locator.js';
-
 import type { Page } from '@playwright/test';
 
 export class LoginPage {
-  readonly locators: LoginPageLocators;
+  constructor(private readonly page: Page) {}
 
-  constructor(private readonly page: Page) {
-    this.locators = new LoginPageLocators(page);
-  }
+  element = {
+    signUpModal: () => this.page.locator('#signInModal'),
+    loginLink: () =>
+      this.page.getByRole('link', { name: 'Log in', exact: true }),
+    loginUsernameInput: () => this.page.locator('#loginusername'),
+    loginPasswordInput: () => this.page.locator('#loginpassword'),
+    loginButton: () =>
+      this.page.getByRole('button', { name: 'Log in', exact: true }),
+    signUpLink: () =>
+      this.page.getByRole('link', { name: 'Sign up', exact: true }),
+    signUpUsernameInput: () => this.page.locator('#sign-username'),
+    signUpPasswordInput: () => this.page.locator('#sign-password'),
+    signUpButton: () =>
+      this.page.getByRole('button', { name: 'Sign up', exact: true }),
+  };
 
   async signUp(username: string, password: string): Promise<void> {
-    await this.locators.signUpLink.click();
-    await this.locators.signUpUsernameInput.fill(username);
-    await this.locators.signUpPasswordInput.fill(password);
+    await this.element.signUpLink().click();
+    await this.element.signUpUsernameInput().fill(username);
+    await this.element.signUpPasswordInput().fill(password);
 
     const dialogPromise = this.page.waitForEvent('dialog');
-    await this.locators.signUpButton.click();
+    await this.element.signUpButton().click();
 
     const dialog = await dialogPromise;
     await dialog.accept();
-    await this.locators.signUpModal.waitFor({ state: 'hidden' });
+    await this.element.signUpModal().waitFor({ state: 'hidden' });
   }
 
   async login(username: string, password: string): Promise<void> {
-    await this.locators.loginLink.click();
-    await this.locators.loginUsernameInput.fill(username);
-    await this.locators.loginPasswordInput.fill(password);
-    await this.locators.loginButton.click();
+    await this.element.loginLink().click();
+    await this.element.loginUsernameInput().fill(username);
+    await this.element.loginPasswordInput().fill(password);
+    await this.element.loginButton().click();
   }
 
   async openLoginAndSubmit(
     username: string,
     password: string,
   ): Promise<string> {
-    await this.locators.loginLink.click();
-    await this.locators.loginUsernameInput.fill(username);
-    await this.locators.loginPasswordInput.fill(password);
+    await this.element.loginLink().click();
+    await this.element.loginUsernameInput().fill(username);
+    await this.element.loginPasswordInput().fill(password);
 
     const dialogPromise = this.page
       .waitForEvent('dialog', { timeout: 5_000 })
       .catch(() => null);
 
-    await this.locators.loginButton.click();
+    await this.element.loginButton().click();
     const dialog = await dialogPromise;
 
     if (!dialog) {

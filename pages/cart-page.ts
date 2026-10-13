@@ -1,12 +1,34 @@
+import { HtmlTable } from '../custom-elements/html-table.js';
+
 import type { Page } from '@playwright/test';
-import { CartPageLocators } from '../locators/cart-page-locator.js';
 
 export class CartPage {
-  readonly locators: CartPageLocators;
+  constructor(private readonly page: Page) {}
 
-  constructor(private readonly page: Page) {
-    this.locators = new CartPageLocators(page);
-  }
+  element = {
+    placeOrderButton: () =>
+      this.page.getByRole('button', { name: 'Place Order', exact: true }),
+    nameInput: () => this.page.locator('#name'),
+    countryInput: () => this.page.locator('#country'),
+    cityInput: () => this.page.locator('#city'),
+    cardInput: () => this.page.locator('#card'),
+    monthInput: () => this.page.locator('#month'),
+    yearInput: () => this.page.locator('#year'),
+    purchaseButton: () =>
+      this.page.getByRole('button', { name: 'Purchase', exact: true }),
+    cartTable: () => new HtmlTable(this.page, this.page.locator('#tbodyid')),
+    productByName: (name: string) =>
+      this.element.cartTable().elements.rowLocatorByText(name),
+    emptyCartErrorMessage: () =>
+      this.page.locator('.sweet-alert').filter({
+        hasText:
+          /Please add .* product|Cart is empty|No product in cart|Please add some products/i,
+      }),
+    purchaseSuccessMessage: () =>
+      this.page
+        .locator('.sweet-alert')
+        .filter({ hasText: /Thank you for your purchase!/i }),
+  };
 
   async placeOrderWithDetails(details: {
     name: string;
@@ -16,20 +38,20 @@ export class CartPage {
     month: string;
     year: string;
   }): Promise<string> {
-    await this.locators.placeOrderButton.click();
+    await this.element.placeOrderButton().click();
 
-    await this.locators.nameInput.fill(details.name);
-    await this.locators.countryInput.fill(details.country);
-    await this.locators.cityInput.fill(details.city);
-    await this.locators.cardInput.fill(details.card);
-    await this.locators.monthInput.fill(details.month);
-    await this.locators.yearInput.fill(details.year);
+    await this.element.nameInput().fill(details.name);
+    await this.element.countryInput().fill(details.country);
+    await this.element.cityInput().fill(details.city);
+    await this.element.cardInput().fill(details.card);
+    await this.element.monthInput().fill(details.month);
+    await this.element.yearInput().fill(details.year);
 
     const dialogPromise = this.page
       .waitForEvent('dialog', { timeout: 5_000 })
       .catch(() => null);
 
-    await this.locators.purchaseButton.click();
+    await this.element.purchaseButton().click();
     const dialog = await dialogPromise;
 
     if (!dialog) {
@@ -42,11 +64,11 @@ export class CartPage {
   }
 
   async removeItemByName(productName: string): Promise<void> {
-    const productRow = this.locators.productByName(productName);
+    const productRow = this.element.productByName(productName);
     await productRow.locator('a[onclick^="deleteItem("]').click();
   }
 
   async openPlaceOrder(): Promise<void> {
-    await this.locators.placeOrderButton.click();
+    await this.element.placeOrderButton().click();
   }
 }

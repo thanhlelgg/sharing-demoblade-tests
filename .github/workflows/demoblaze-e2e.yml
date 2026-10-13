@@ -35,8 +35,6 @@ jobs:
       - name: Run tests
         env:
           BASE_URL: ${{ vars.DEMOBLAZE_BASE_URL || 'https://www.demoblaze.com/' }}
-          API_BASE_URL: ${{ vars.DEMOBLAZE_API_BASE_URL || 'https://api.demoblaze.com' }}
-          PERFORMANCE_BUDGET_MS: ${{ vars.PERFORMANCE_BUDGET_MS || '10000' }}
         run: npm test -- --grep-invert @known-bug
 
       - name: Upload Playwright artifacts
